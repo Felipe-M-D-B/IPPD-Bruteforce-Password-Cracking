@@ -6,6 +6,8 @@ RM=rm -f
 
 EXEC=password_bf
 
+INPUT=password.in
+
 all: $(EXEC)
 
 $(EXEC):
@@ -14,6 +16,9 @@ $(EXEC):
 
 run:
 	./$(EXEC)
+
+runtime:
+	time -p ./$(EXEC) < $(INPUT)
 
 clean:
 	$(RM) password_bf.o $(EXEC)
