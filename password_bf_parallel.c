@@ -18,14 +18,12 @@ void print_digest(byte * hash){
  
 	for(x = 0; x < MD5_DIGEST_LENGTH; x++)
         	printf("%02x", hash[x]);
-	printf("\n");
 }
  
 /*
  * This procedure generate all combinations of possible letters
 */
 void iterate(byte * hash1, byte * hash2, char *str, int idx, int len, int *ok) {
-	int c;
  
 	// 'ok' determines when the algorithm matches.
 	if(*ok) return;
@@ -33,7 +31,7 @@ void iterate(byte * hash1, byte * hash2, char *str, int idx, int len, int *ok) {
 	//cada thread tem a sua propria str e hash2
 	if (idx == 0) {
 		#pragma omp parallel for schedule(dynamic) shared(hash1, str, ok, len)
-		for (c = 0; c < strlen(letters); ++c) {
+		for (int c = 0; c < strlen(letters); ++c) {
 			if (*ok) continue;
  
 			char str_local[MAX+1];
@@ -48,8 +46,9 @@ void iterate(byte * hash1, byte * hash2, char *str, int idx, int len, int *ok) {
 				if(strncmp((char*)hash1, (char*)hash2_local, MD5_DIGEST_LENGTH) == 0){
 					#pragma omp critical
 					{
-						printf("found: %s\n", str_local);
+						printf("found: %s [", str_local);
 						print_digest(hash2_local);
+						printf("]\n");
 						*ok = 1;
 					}
 				}
@@ -60,19 +59,20 @@ void iterate(byte * hash1, byte * hash2, char *str, int idx, int len, int *ok) {
 
 	if (idx < (len - 1)) {
 		// Iterate for all letter combination.
-		for (c = 0; c < strlen(letters) && *ok==0; ++c) {
+		for (int c = 0; c < strlen(letters) && *ok==0; ++c) {
 			str[idx] = letters[c];
 			// Recursive call
 			iterate(hash1, hash2, str, idx + 1, len, ok);
 		}
 	} else {
 		// Include all last letters and compare the hashes.
-		for (c = 0; c < strlen(letters) && *ok==0; ++c) {
+		for (int c = 0; c < strlen(letters) && *ok==0; ++c) {
 			str[idx] = letters[c];
 			MD5((byte *) str, strlen(str), hash2);
 			if(strncmp((char*)hash1, (char*)hash2, MD5_DIGEST_LENGTH) == 0){
-				printf("found: %s\n", str);
+				printf("found: %s [", str);
 				print_digest(hash2);
+				printf("]\n");
 				*ok = 1;
 			}
 		}
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 	strHex_to_byte(hash1_str, hash1);
  
 	memset(hash2, 0, MD5_DIGEST_LENGTH);
-	print_digest(hash1);
+	// print_digest(hash1);
  
 	// Generate all possible passwords of different sizes.
 	for(len = 1; len <= lenMax; len++){
