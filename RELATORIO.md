@@ -14,6 +14,6 @@
 
 # Comandos MAKEFILE
 
-- make: compilar o codgio
+- make: compilar o codigo
 - make runtime: executar codigo sequencial
 - make runtime_parallel: executar codigo paralelizado
